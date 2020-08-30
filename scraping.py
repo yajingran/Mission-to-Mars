@@ -100,6 +100,7 @@ def hemisphere(browser):
     browser.visit(url)
     hemisphere_image_urls = []
     links = browser.find_by_css('a.product-item h3')
+    
     for item in range(len(links)):
         hemisphere = {}
 
