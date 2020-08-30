@@ -16,9 +16,12 @@ def scrape_all():
         "news_title": news_title,
         "news_paragraph": news_paragraph,
         "featured_image": featured_image(browser),
+        "hemisphere": hemisphere(browser),
         "facts": mars_facts(),
         "last_modified": dt.datetime.now()
     }
+
+    print(data)
 
     # Stop webdriver and return data
     browser.quit()
@@ -76,7 +79,6 @@ def featured_image(browser):
     # Parse the resulting html with soup
     html = browser.html
     img_soup = soup(html, 'html.parser')
-
     # Add try/except for error handling
     try:
         # Find the relative image url
@@ -85,10 +87,34 @@ def featured_image(browser):
     except AttributeError:
         return None
 
-
-    # Use the base URL to create an absolute URL
+    # Use the base url to create an absolute url
     img_url = f'https://www.jpl.nasa.gov{img_url_rel}'
+    print('\n\n\n\n\n\nfeatured image')
+    print(img_url)
     return img_url
+
+
+# ## Hemisphere
+def hemisphere(browser):
+    url = 'https://astrogeology.usgs.gov/search/results?q=hemisphere+enhanced&k1=target&v1=Mars'
+    browser.visit(url)
+    hemisphere_image_urls = []
+    links = browser.find_by_css('a.product-item h3')
+    for item in range(len(links)):
+        hemisphere = {}
+
+        browser.find_by_css('a.product-item h3')[item].click()
+        hemisphere['title'] = browser.find_by_css('h2.title').text
+        sample_element = browser.find_link_by_text('Sample').first
+        hemisphere['img_url'] = sample_element['href']
+        
+        hemisphere_image_urls.append(hemisphere)
+        
+        browser.back()
+
+    return hemisphere_image_urls
+
+
 
 # ## Mars Facts
 def mars_facts():
@@ -104,7 +130,7 @@ def mars_facts():
     df.set_index('Description', inplace=True)
 
     # Convert dataframe into HTML format, add bootstrap
-    return df.to_html(classes-"table table-striped")
+    return df.to_html(classes="table table-striped")
 
 if __name__ == "__main__":
 
